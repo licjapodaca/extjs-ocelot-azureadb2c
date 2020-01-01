@@ -1,0 +1,13 @@
+/build
+bootstrap.*
+classic.json*
+modern.json*
+.sencha
+**/.vscode
+**/ext
+**/resources/sass/.sass-cache/
+**/resources/.arch-internal-preview.css
+**/.arch-internal-preview.css
+
+**/.DS_Store
+!**/packages/*

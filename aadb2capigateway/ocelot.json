@@ -1,0 +1,37 @@
+{
+	"ReRoutes": [
+		{
+			"DownstreamPathTemplate": "/api/values",
+			"DownstreamScheme": "https",
+			"DownstreamHostAndPorts": [
+				{
+					"Host": "localhost",
+					"Port": 5005
+				}
+			],
+			"UpstreamPathTemplate": "/api/values",
+			"UpstreamHttpMethod": [
+				"GET"
+			],
+			"AuthenticationOptions": {
+				"AuthenticationProviderKey": "TemisApiGatewayKey",
+				"AllowedScopes": []
+			},
+			"AddHeadersToRequest": {
+				"UserId": "Claims[http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier] > value > |",
+				"UserName": "Claims[name] > value > |",
+				"Email": "Claims[emails] > value > |"
+			},
+			"QoSOptions": {
+				"ExceptionsAllowedBeforeBreaking": 3,
+				"DurationOfBreak": 5,
+				"TimeoutValue": 1200000
+			}
+		}
+	],
+	"GlobalConfiguration": {
+		"BaseUrl": "https://localhost:5001",
+		"RequestIdKey": "OcRequestId",
+		"AdministrationPath": "/administration"
+	}
+}
