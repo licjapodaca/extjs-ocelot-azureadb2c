@@ -1,18 +1,14 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Polly;
@@ -34,6 +30,11 @@ namespace aadb2capigateway
 			.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
 			.AddEnvironmentVariables();
 
+			if (env.IsDevelopment())
+			{
+				builder.AddUserSecrets<Startup>();
+			}
+
 			_config = builder.Build();
 		}
 
@@ -51,7 +52,7 @@ namespace aadb2capigateway
 			services
 				.AddOcelot(_config)
 				.AddPolly();
-			
+
 			//JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 			services.AddAuthentication(_config["AzureAdB2C:ProviderKey"].ToString())//JwtBearerDefaults.AuthenticationScheme)
@@ -71,22 +72,15 @@ namespace aadb2capigateway
 							if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
 							{
 								context.Response.Headers.Add("Token-Expired", "true");
-								// var payload = new JObject
-								// {
-								// 	["error"] = context.Exception.Source,
-								// 	["error_description"] = context.Exception.Message
-								// };
-								// context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-								// context.Response.ContentType = "application/json";
-								// context.Response.WriteAsync(payload.ToString());
 							}
 							return Task.CompletedTask;
 						}
 					};
 				});
 
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-			.AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+			services.AddMvc()
+				.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+				.AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
 			IdentityModelEventSource.ShowPII = true;
 		}

@@ -15,7 +15,7 @@ namespace aadb2capigateway
             WebHost.CreateDefaultBuilder(args)
 				.UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
+                //.UseIISIntegration()
                 .UseStartup<Startup>();
     }
 }

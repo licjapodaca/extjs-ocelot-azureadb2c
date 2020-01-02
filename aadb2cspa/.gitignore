@@ -11,3 +11,5 @@ modern.json*
 
 **/.DS_Store
 !**/packages/*
+
+resources/scripts/msal-config.js
