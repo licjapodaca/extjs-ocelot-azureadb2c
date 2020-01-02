@@ -24,11 +24,11 @@ namespace aadb2capigateway
 		public Startup(IHostingEnvironment env)
 		{
 			var builder = new ConfigurationBuilder()
-			.SetBasePath(env.ContentRootPath)
-			.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-			.AddJsonFile($"appsettings.{env.EnvironmentName.ToLower()}.json", optional: false, reloadOnChange: true)
-			.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
-			.AddEnvironmentVariables();
+				.SetBasePath(env.ContentRootPath)
+				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+				.AddJsonFile($"appsettings.{env.EnvironmentName.ToLower()}.json", optional: false, reloadOnChange: true)
+				.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
+				.AddEnvironmentVariables();
 
 			if (env.IsDevelopment())
 			{
