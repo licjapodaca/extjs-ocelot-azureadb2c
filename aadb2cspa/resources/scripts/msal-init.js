@@ -42,6 +42,8 @@ msalInstance.handleRedirectCallback((error, response) => {
 		else if (error.errorMessage.indexOf("Login_In_Progress") > -1) { }
 		else if (error.errorMessage.indexOf("AADB2C90118") > -1) {
 			window.msalInstance.logout();
+		} else {
+			alert(error);
 		}
 	} else {
 		if(msalInstance.getAccount().name === undefined) {
@@ -53,6 +55,7 @@ msalInstance.handleRedirectCallback((error, response) => {
 });
 
 // if the user is already logged in you can acquire a token
-if (!msalInstance.getAccount()) {
+if (!msalInstance.getAccount() || msalInstance.getAccount() == null) {
 	msalInstance.loginRedirect(loginRequest);
+	window.stop();
 }
