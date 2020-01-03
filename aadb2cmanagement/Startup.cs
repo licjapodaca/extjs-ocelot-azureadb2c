@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using aadb2cmanagement.Helpers.APIGraphClient.Implementation;
+using aadb2cmanagement.Helpers.APIGraphClient.Interface;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -32,11 +34,12 @@ namespace aadb2cmanagement
 
 			_config = builder.Build();
 		}
-
-
+		
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddHttpClient();
+			services.AddSingleton<IB2CGraphClient,B2CGraphClient>();
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 		}
 
