@@ -57,6 +57,34 @@ namespace aadb2cmanagement.Controllers
 			}
 		}
 
+		[HttpGet("getuserphotobyid/{id}")]
+		public async Task<IActionResult> GetUserPhotoById(string id)
+		{
+			try
+			{
+				var result = await _graphClient.GetUserPhotoByIdAsync(id);
+
+				if (result.Item2 == null)
+				{
+					return new FileStreamResult(result.Item1, result.Item3);
+				}
+				else
+				{
+					return new ContentResult()
+					{
+						Content = JsonConvert.SerializeObject(result.Item2),
+						ContentType = result.Item3,
+						StatusCode = result.Item4
+					};
+				}
+
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+		}
+
 		[HttpPost("createuser")]
 		public async Task<IActionResult> CreateUser([FromBody] dynamic content)
 		{
@@ -115,5 +143,25 @@ namespace aadb2cmanagement.Controllers
 				throw;
 			}
 		}
+
+		[HttpPost("invalidatetokens/{id}")]
+		public async Task<IActionResult> InvalidateTokensByUserId(string id)
+		{
+			try
+			{
+				var result = await _graphClient.InvalidateAllRefreshTokensByUserIdAsync(id);
+				return new ContentResult()
+				{
+					Content = result.Item1 == null ? null : JsonConvert.SerializeObject(result.Item1),
+					StatusCode = result.Item2,
+					ContentType = "application/json"
+				};
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+		}
+
 	}
 }

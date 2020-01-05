@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using System.IO;
 #endregion
 
 namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
@@ -48,7 +49,7 @@ namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
 		}
 		#endregion
 
-		public async Task<(object,int)> GetUserByObjectIdAsync(string objectId)
+		public async Task<(object, int)> GetUserByObjectIdAsync(string objectId)
 		{
 			try
 			{
@@ -60,7 +61,31 @@ namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
 			}
 		}
 
-		public async Task<(object,int)> GetAllUsersAsync(string query)
+		public async Task<(object, int)> InvalidateAllRefreshTokensByUserIdAsync(string objectId)
+		{
+			try
+			{
+				return await SendInvalidateAllRefreshTokensByUserId(api: $"users/{objectId}/invalidateAllRefreshTokens");
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+		}
+
+		public async Task<(Stream, object, string, int)> GetUserPhotoByIdAsync(string objectId)
+		{
+			try
+			{
+				return await SendGraphGetPhotoRequest(api: $"users/{objectId}/thumbnailPhoto");
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+		}
+
+		public async Task<(object, int)> GetAllUsersAsync(string query)
 		{
 			try
 			{
@@ -72,7 +97,7 @@ namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
 			}
 		}
 
-		public async Task<(object,int)> CreateUserAsync(string json)
+		public async Task<(object, int)> CreateUserAsync(string json)
 		{
 			try
 			{
@@ -84,7 +109,7 @@ namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
 			}
 		}
 
-		public async Task<(object,int)> UpdateUserAsync(string objectId, string json)
+		public async Task<(object, int)> UpdateUserAsync(string objectId, string json)
 		{
 			try
 			{
@@ -96,7 +121,7 @@ namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
 			}
 		}
 
-		public async Task<(object,int)> DeleteUserAsync(string objectId)
+		public async Task<(object, int)> DeleteUserAsync(string objectId)
 		{
 			try
 			{
@@ -110,7 +135,7 @@ namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
 
 		#region private methods
 
-		private async Task<(object,int)> SendGraphGetRequest(string api, string query)
+		private async Task<(object, int)> SendGraphGetRequest(string api, string query)
 		{
 			try
 			{
@@ -149,7 +174,75 @@ namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
 			}
 		}
 
-		private async Task<(object,int)> SendGraphPostRequest(string api, string json)
+		private async Task<(object, int)> SendInvalidateAllRefreshTokensByUserId(string api)
+		{
+			try
+			{
+				// First, use ADAL to acquire a token using the app's identity (the credential)
+				// The first parameter is the resource we want an access_token for; in this case, the Graph API.
+				MICA.AuthenticationResult result = await _authContext.AcquireTokenAsync(
+					resource: _graphApiUrl,
+					clientCredential: _credential
+				);
+
+				// For B2C user managment, be sure to use the 1.6 Graph API version.
+				string url = $"{_graphApiUrl}/{_tenant}/{api}?{_aadGraphVersion}";
+
+				// Append the access token for the Graph API to the Authorization header of the request, using the Bearer scheme.
+				HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+				request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
+				HttpResponseMessage response = await _httpClient.SendAsync(request);
+
+				if (!response.IsSuccessStatusCode)
+				{
+					string error = await response.Content.ReadAsStringAsync();
+					object formatted = JsonConvert.DeserializeObject(error);
+					return (formatted, (int)response.StatusCode);
+				}
+
+				return (null, (int)response.StatusCode);
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+		}
+
+		private async Task<(Stream, object, string, int)> SendGraphGetPhotoRequest(string api)
+		{
+			try
+			{
+				// First, use ADAL to acquire a token using the app's identity (the credential)
+				// The first parameter is the resource we want an access_token for; in this case, the Graph API.
+				MICA.AuthenticationResult result = await _authContext.AcquireTokenAsync(
+					resource: _graphApiUrl,
+					clientCredential: _credential
+				);
+
+				// For B2C user managment, be sure to use the 1.6 Graph API version.
+				string url = $"{_graphApiUrl}/{_tenant}/{api}?{_aadGraphVersion}";
+
+				// Append the access token for the Graph API to the Authorization header of the request, using the Bearer scheme.
+				HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+				request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
+				HttpResponseMessage response = await _httpClient.SendAsync(request);
+
+				if (!response.IsSuccessStatusCode)
+				{
+					string error = await response.Content.ReadAsStringAsync();
+					object formatted = JsonConvert.DeserializeObject(error);
+					return (null, formatted, "application/json", (int)response.StatusCode);
+				}
+
+				return (await response.Content.ReadAsStreamAsync(), null, response.Content.Headers.ContentType.ToString(), (int)response.StatusCode);
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+		}
+
+		private async Task<(object, int)> SendGraphPostRequest(string api, string json)
 		{
 			try
 			{
@@ -170,7 +263,7 @@ namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
 				{
 					string error = await response.Content.ReadAsStringAsync();
 					object formatted = JsonConvert.DeserializeObject(error);
-					return (formatted,(int)response.StatusCode);
+					return (formatted, (int)response.StatusCode);
 				}
 
 				return (JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync()), (int)response.StatusCode);
@@ -181,7 +274,7 @@ namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
 			}
 		}
 
-		private async Task<(object,int)> SendGraphPatchRequest(string api, string json)
+		private async Task<(object, int)> SendGraphPatchRequest(string api, string json)
 		{
 			try
 			{
@@ -213,7 +306,7 @@ namespace aadb2cmanagement.Helpers.APIGraphClient.Implementation
 			}
 		}
 
-		private async Task<(object,int)> SendGraphDeleteRequest(string api)
+		private async Task<(object, int)> SendGraphDeleteRequest(string api)
 		{
 			try
 			{
