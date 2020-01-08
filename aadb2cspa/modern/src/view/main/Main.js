@@ -6,6 +6,8 @@
 Ext.define('aadb2cspa.view.main.Main', {
 	extend: 'Ext.Panel',
 
+	xtype: 'app-main',
+
 	controller: 'main',
 	viewModel: 'main',
 
@@ -23,7 +25,7 @@ Ext.define('aadb2cspa.view.main.Main', {
 	}],
 
 	items: [{
-		xtype: 'app-main'
+		xtype: 'mainlist'
 	}],
 
 	listeners: {

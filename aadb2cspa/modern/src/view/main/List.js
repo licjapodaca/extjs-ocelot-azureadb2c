@@ -3,7 +3,7 @@
  */
 Ext.define('aadb2cspa.view.main.List', {
     extend: 'Ext.tab.Panel',
-    xtype: 'app-main',
+	xtype: 'mainlist',
 
     requires: [
         'Ext.MessageBox',

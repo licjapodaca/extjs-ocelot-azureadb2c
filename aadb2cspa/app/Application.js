@@ -16,31 +16,19 @@ Ext.define('aadb2cspa.Application', {
 	},
 
 	init: function () {
-
-		var me = this;
-
-		if (!window.msalInstance.getAccount()) {
-
-			if (msalErrorMessage) {
-				Ext.Msg.show({
-					title: "Error",
-					msg: msalErrorMessage
-				});
-			}
-
+		if (window.msalInstance.getAccount() == null) {
 			window.location.reload();
 		}
+		window.history.replaceState({}, document.title, localStorage.getItem('temisUrl'));
 	},
 
 	launch: function () {
 
 		window.getToken().then(response => {
-
 			if (!Ext.isEmpty(response) && !Ext.isEmpty(response.accessToken)) {
-				window.msalAccessToken = response.accessToken;
 
 				var headers = {
-					"Authorization": Ext.String.format("Bearer {0}", window.msalAccessToken),
+					"Authorization": Ext.String.format("Bearer {0}", response.accessToken),
 					"Content-Type": "application/json"
 				};
 
@@ -49,16 +37,24 @@ Ext.define('aadb2cspa.Application', {
 				InitialAjaxCalls.executeAjaxCalls();
 
 				Ext.Ajax.on('requestexception', function (conn, response, options) {
-					if (!Ext.isEmpty(response) && (response.status == 401 && (!Ext.isEmpty(response.getResponseHeader("Token-Expired")) && response.getResponseHeader("Token-Expired") == "true"))) {
+					if (
+						!Ext.isEmpty(response) &&
+						(
+							response.status == 401 &&
+							(
+								!Ext.isEmpty(response.getResponseHeader("Token-Expired")) &&
+								response.getResponseHeader("Token-Expired") == "true"
+							)
+						)
+					) {
 						window.getToken().then(response => {
 							if (!Ext.isEmpty(response) && !Ext.isEmpty(response.accessToken)) {
-								window.msalAccessToken = response.accessToken;
-				
+
 								var headers = {
-									"Authorization": Ext.String.format("Bearer {0}", window.msalAccessToken),
+									"Authorization": Ext.String.format("Bearer {0}", response.accessToken),
 									"Content-Type": "application/json"
 								};
-				
+
 								Ext.Ajax.setDefaultHeaders(headers);
 
 								Ext.Ajax.request(options);

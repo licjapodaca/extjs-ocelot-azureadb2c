@@ -3,9 +3,6 @@
 // instantiate MSAL
 var msalInstance = new Msal.UserAgentApplication(msalConfig);
 
-var msalAccessToken = "";
-var msalErrorMessage = null;
-
 function getToken() {
 	return msalInstance.acquireTokenSilent(tokenRequest)
 		// .then(response => {
@@ -37,16 +34,16 @@ msalInstance.handleRedirectCallback((error, response) => {
 		if (error.errorMessage.indexOf("AADB2C90118") > -1) {
 			msalInstance.authority = msalConfig.auth.authorityPR;
 			msalInstance.loginRedirect(loginRequest);
-			window.stop();
-		}
-		else if (error.errorMessage.indexOf("Login_In_Progress") > -1) { }
-		else if (error.errorMessage.indexOf("AADB2C90118") > -1) {
-			window.msalInstance.logout();
+		} else if (error.errorMessage.indexOf("Login_In_Progress") > -1) {
+		} else if (error.errorMessage.indexOf("AADB2C90091") > -1) {
+			msalInstance.loginRedirect(loginRequest);
 		} else {
-			alert(error);
+			console.log("Error:", error);
+			msalInstance.loginRedirect(loginRequest);
 		}
+		window.stop();
 	} else {
-		if(msalInstance.getAccount().name === undefined) {
+		if (msalInstance.getAccount().name === undefined) {
 			msalInstance.authority = msalConfig.auth.authority;
 			msalInstance.loginRedirect(loginRequest);
 			window.stop();
