@@ -1,1 +1,1 @@
-# Documentation to prepare all the projects will be soon
+# The instructions to prepare all projects will be soon!!!
