@@ -361,3 +361,5 @@ MigrationBackup/
 *.code-workspace
 
 secrets.json
+
+wwwroot
