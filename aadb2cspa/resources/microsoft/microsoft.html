@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- Microsoft Authentication Library SDK for javascript -->
+	<!-- Resource URL: https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-v2-javascript -->
+	<script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.0/js/msal.js"></script>
+	
+	<script>
+		//inicializando msal
+		var msalConfig = {
+			auth: {
+				clientId: 'a0b992c8-981c-4b0e-a345-9dac7462ec00', //client ID
+				authority: "https://login.microsoftonline.com/common", //Tenantid
+				redirectUri: "https://localhost:5001/resources/microsoft/"
+			},
+			cache: {
+				cacheLocation: "localStorage",
+				storeAuthStateInCookie: true
+			}
+		};
+
+		// el tipo de consetimiento que se requiere del usuario
+		var requestObj = {
+			scopes: ["user.read"]
+		};
+
+		var myMSALObj = new Msal.UserAgentApplication(msalConfig);
+
+		// Registrar calllback del login
+		myMSALObj.handleRedirectCallback(callBackLogin);
+
+		//meotodo para iniciar sesion
+		function signIn() {
+			myMSALObj.loginRedirect(requestObj).then(function (loginResponse) { // o tambien loginPopup
+				// BLL
+			}).catch(function (error) {
+				console.log(error);
+			});
+		}
+
+		//cerrar sesion
+		function signOut() {
+			myMSALObj.logout();
+		}
+
+		//callback del login con los datos del usuario
+		function callBackLogin(error, response) {
+			if (error) {
+				console.log(error);
+			} else {
+				// si no se tiene el access token no se podra realizar la llamada para obtener el id del usuario
+				console.log(JSON.stringify(response));
+			}
+		}
+
+	</script>
+</head>
+
+<body>
+	<h1>Microsoft Athentication</h1>
+</body>
+
+</html>

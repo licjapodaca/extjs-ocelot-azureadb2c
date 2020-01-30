@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -105,6 +106,14 @@ namespace aadb2capigateway
 			app.UseAuthentication();
 
 			app.UseHttpsRedirection();
+
+			app.UseDefaultFiles(
+				new DefaultFilesOptions
+				{
+					DefaultFileNames = new List<string> { "index.html" }
+				}
+			);
+
 			app.UseStaticFiles();
 			app.UseMvc(routes =>
 			{
