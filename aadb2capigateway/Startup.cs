@@ -4,12 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Logging;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Polly;
@@ -22,7 +20,7 @@ namespace aadb2capigateway
 		public static string ScopeRead;
 		public static string ScopeWrite;
 
-		public Startup(IHostingEnvironment env)
+		public Startup(IHostEnvironment env)
 		{
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(env.ContentRootPath)
@@ -79,15 +77,13 @@ namespace aadb2capigateway
 					};
 				});
 
-			services.AddMvc()
-				.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-				.AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+			services.AddControllers();
 
-			IdentityModelEventSource.ShowPII = true;
+			//IdentityModelEventSource.ShowPII = true;
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			if (env.IsDevelopment())
 			{
@@ -115,13 +111,11 @@ namespace aadb2capigateway
 			);
 
 			app.UseStaticFiles();
-			app.UseMvc(routes =>
-			{
-				routes.MapRoute(
-					name: "default",
-					template: "{controller=Home}/{action=Index}/{id?}"
-				);
-			});
+			app.UseRouting();
+			app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 			app.UseOcelot().Wait();
 		}
 	}

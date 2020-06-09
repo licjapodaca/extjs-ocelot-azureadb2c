@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -19,7 +20,7 @@ namespace aadb2cmanagement
 	{
 		public IConfiguration _config { get; }
 
-		public Startup(IHostingEnvironment env)
+		public Startup(IHostEnvironment env)
 		{
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(env.ContentRootPath)
@@ -40,11 +41,11 @@ namespace aadb2cmanagement
 		{
 			services.AddHttpClient();
 			services.AddSingleton<IB2CGraphClient,B2CGraphClient>();
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+			services.AddControllers();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			if (env.IsDevelopment())
 			{
@@ -57,7 +58,11 @@ namespace aadb2cmanagement
 			}
 
 			app.UseHttpsRedirection();
-			app.UseMvc();
+			app.UseRouting();
+			app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 		}
 	}
 }
