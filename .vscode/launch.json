@@ -5,12 +5,12 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Debug ApiGateway",
+			"name": "ApiGateway",
 			"type": "coreclr",
 			"request": "launch",
 			"preLaunchTask": "build",
 			// If you have changed target frameworks, make sure to update the program path.
-			"program": "${workspaceFolder}/aadb2capigateway/bin/Debug/netcoreapp2.2/aadb2capigateway.dll",
+			"program": "${workspaceFolder}/aadb2capigateway/bin/Debug/netcoreapp3.1/aadb2capigateway.dll",
 			"args": [],
 			"cwd": "${workspaceFolder}/aadb2capigateway",
 			"stopAtEntry": false,
@@ -28,12 +28,12 @@
 			"requireExactSource": false
 		},
 		{
-			"name": "Debug Graph Management",
+			"name": "Management",
 			"type": "coreclr",
 			"request": "launch",
 			"preLaunchTask": "build",
 			// If you have changed target frameworks, make sure to update the program path.
-			"program": "${workspaceFolder}/aadb2cmanagement/bin/Debug/netcoreapp2.2/aadb2cmanagement.dll",
+			"program": "${workspaceFolder}/aadb2cmanagement/bin/Debug/netcoreapp3.1/aadb2cmanagement.dll",
 			"args": [],
 			"cwd": "${workspaceFolder}/aadb2cmanagement",
 			"stopAtEntry": false,
@@ -52,10 +52,38 @@
 			"requireExactSource": false
 		},
 		{
-			"name": ".NET Core Attach",
+			"name": "Microservice",
 			"type": "coreclr",
-			"request": "attach",
-			"processId": "${command:pickProcess}"
+			"request": "launch",
+			"preLaunchTask": "build",
+			// If you have changed target frameworks, make sure to update the program path.
+			"program": "${workspaceFolder}/aadb2cmicroservice/bin/Debug/netcoreapp3.1/aadb2cmicroservice.dll",
+			"args": [],
+			"cwd": "${workspaceFolder}/aadb2cmicroservice",
+			"stopAtEntry": false,
+			// Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
+			"serverReadyAction": {
+				"action": "openExternally",
+				"pattern": "^\\s*Now listening on:\\s+(https?://\\S+)",
+				"uriFormat": "%s/api/account/getallusers"
+			},
+			"env": {
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			},
+			"sourceFileMap": {
+				"/Views": "${workspaceFolder}/Views"
+			},
+			"requireExactSource": false
+		}
+	],
+	"compounds": [
+		{
+			"name": "Solucion",
+			"configurations": [
+				"ApiGateway",
+				"Management",
+				"Microservice"
+			]
 		}
 	]
 }
